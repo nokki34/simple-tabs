@@ -1,0 +1,15 @@
+.TabEditor.main {
+  width: 100vw;
+  padding: 10px;
+  font-family: monospace;
+  display: flex;
+}
+
+.TabEditor .input {
+  flex: 1;
+}
+
+.TabEditor .input textarea {
+  width: 100%;
+  min-height: 500px;
+}

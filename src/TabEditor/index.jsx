@@ -1,42 +1,50 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { Form, redirect, useLoaderData } from "react-router-dom";
 import { TabViewer } from "../TabViewer";
+import { editTab, getTabs } from "../storage";
+import "./styles.css";
 
-export default function TabEditor({
-  onSave,
-  id,
-  initialInput = "",
-  initialTitle = "",
-}) {
-  const [input, setInput] = useState(initialInput);
-  const [title, setTitle] = useState(initialTitle);
+export async function loader({ params }) {
+  const tabs = getTabs();
+  const tab = tabs[params.id];
+  return { tab };
+}
 
-  const handleSubmit = () => {
-    onSave(id, { lyrics: input, title });
-  };
+export async function action({ request, params }) {
+  const formData = await request.formData();
+  const updates = Object.fromEntries(formData);
 
-  useEffect(() => {
-    console.log(initialInput);
-    setInput(initialInput);
-  }, [initialInput]);
+  editTab(params.id, updates);
+  return redirect("/");
+}
+
+export default function TabEditor() {
+  const { tab } = useLoaderData();
+
+  const [input, setInput] = useState(tab.lyrics);
+  const [title, setTitle] = useState(tab.title);
 
   return (
-    <div className="main">
+    <div className="TabEditor main">
       <div className="input">
-        <form onSubmit={handleSubmit}>
+        <Form method="POST">
           <textarea
+            name="lyrics"
             placeholder="Put your lyrics here"
             value={input}
             onChange={(e) => setInput(e.target.value)}
           ></textarea>
           <div>
             <input
+              name="title"
               type="text"
               placeholder="Title"
+              value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
             <button type="submit">Save</button>
           </div>
-        </form>
+        </Form>
       </div>
       <TabViewer input={input} />
     </div>

@@ -1,50 +1,29 @@
-import { useEffect, useState } from "react";
+import { Form, redirect, useLoaderData } from "react-router-dom";
+import { createTab, getTabs } from "./storage";
 import "./App.css";
-import TabEditor from "./TabEditor";
+
+export async function loader() {
+  return getTabs();
+}
+
+export async function action() {
+  const tab = createTab();
+  return redirect(`/tabs/${tab.id}`);
+}
 
 export default function App() {
-  const [currentTabs, setCurrentTabs] = useState();
-  const [tabs, setTabs] = useState(
-    JSON.parse(localStorage.getItem("tabs")) || {}
-  );
+  const tabs = useLoaderData();
 
-  const handleSave = (maybeId, { title, lyrics }) => {
-    let id = maybeId;
-    if (!id) {
-      const lastId = localStorage.getItem("last-id") || 0;
-      id = Number(lastId) + 1;
-      localStorage.setItem("last-id", id);
-    }
-
-    setTabs((prev) => {
-      return { ...prev, [id]: { id, title, lyrics } };
-    });
-
-    setCurrentTabs(undefined);
-  };
-
-  useEffect(() => {
-    localStorage.setItem("tabs", JSON.stringify(tabs));
-  }, [tabs]);
-
-  if (currentTabs) {
-    console.log(currentTabs);
-    return (
-      <TabEditor
-        id={currentTabs.id}
-        initialInput={currentTabs.lyrics}
-        initialTitle={currentTabs.title}
-        onSave={handleSave}
-      />
-    );
-  }
   return (
     <div className="App">
-      <button onClick={() => setCurrentTabs({})}>+ New</button>
+      <Form method="POST">
+        <button type="submit">+ New</button>
+      </Form>
       <div className="tabs-list">
-        {Object.values(tabs).map((it) => (
-          <div onClick={() => setCurrentTabs(it)}>{it.title}</div>
-        ))}
+        {tabs &&
+          Object.values(tabs).map((it) => (
+            <a href={`/tabs/${it.id}`}>{it.title}</a>
+          ))}
       </div>
     </div>
   );

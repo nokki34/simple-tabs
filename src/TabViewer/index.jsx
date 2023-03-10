@@ -1,6 +1,7 @@
 import { processLyrics } from "../tabs-process";
+import "./styles.css";
 
-const LyricsWithChords = ([chords, lyrics]) => {
+const LyricsWithChords = ({ chords, lyrics }) => {
   return (
     <>
       <p>{chords}</p>
@@ -11,7 +12,11 @@ const LyricsWithChords = ([chords, lyrics]) => {
 
 const TabViewer = ({ input }) => {
   return (
-    <pre className="output">{processLyrics(input).map(LyricsWithChords)}</pre>
+    <pre className="TabViewer">
+      {processLyrics(input).map(([сhords, lyrics], idx) => (
+        <LyricsWithChords key={`line-${idx}`} lyrics={lyrics} chords={сhords} />
+      ))}
+    </pre>
   );
 };
 
